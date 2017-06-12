@@ -2,26 +2,67 @@
 class scriptureController {
 
 
-  // public function searchSciptures($request, $response, args) {
-  //   // Add functions
+  public function searchSciptures($request, $response, $args) {
+    // Add functions
+    $connectMe = "yes";
+    require('includes/functions.php');
+    $search_string = $args['string'];
+    //
+    if ((strpos($search_string, '||') !== false) || (strpos($search_string, '&&') !== false)) {
+      $strings = $search_string;
+      $strings = preg_replace( '/\|\|/', '|OR|', $strings);
+      $strings = preg_replace( '/&&/', '|AND|', $strings);
+      $strings = preg_split( '/\|/', $strings);
+
+      $qry_string = "";
+      foreach ($strings as $string) {
+        if($string == "OR" || $string == "AND"){
+          $qry_string .= $string;
+        }else{
+          $qry_string .= " verse_scripture LIKE '%".$string."%' ";
+        }
+      }
+      // $search_string = $qry_string;
+      // $search_string = "SELECT * FROM verses WHERE $qry_string;";
+      // $qry_string = substr($qry_string, 0, -2);
+      // $search_string = substr($qry_string, 0, -2);
+      // $search_string = $strings;
+ //      SELECT Id, ProductName, UnitPrice, Package
+ //  FROM Product
+ // WHERE ProductName LIKE 'Cha_' OR ProductName LIKE 'Chan_'
+      $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE $qry_string;");
+      // $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE verse_scripture LIKE '%light%' AND verse_scripture LIKE '%God%';");
+    }else{
+      $verse_qry = mysqli_query($link, "SELECT * FROM verses
+        WHERE verse_scripture LIKE '%$search_string%';");
+    }
+
+
+    // $qry_string = implode("OR verse_scripture LIKE",$strings)
+    // Users Query
+    while($row = mysqli_fetch_assoc($verse_qry)) {
+     $volumes[] = $row;
+    }
+
+    // Return Response
+    $payload["message"] = "Success";
+    $payload["string"] = $search_string;
+    $payload["volumes"] = $volumes;
+
+    // status
+    $status = 200;
+    $status_message = "Success";
+
+    // Set the response
+    $response = $response->withJson($payload);
+    $response = $response->withStatus($status, $status_message);
+
+    // Return Response
+    return $response;
+  }
+  // public function searchScipturesVolume($request, $response, args) {
   //   $connectMe = "yes";
   //   require('includes/functions.php');
-  //   $search_string = $args['string'];
-  //   $strings = explode(",", $search_string);
-  //   foreach ($strings as &$value) {
-  //      $value = "'%".$value."%'";
-  //   }
-  //   $qry_string = implode("OR verse_scripture LIKE",$strings)
-  //   // Users Query
-  //   $verse_qry = mysqli_query($link, "SELECT * FROM verses
-  //     WHERE verse_scripture LIKE '%$search_string%'
-  //        OR column1 LIKE '%word2%'
-  //        OR column1 LIKE '%word3%' LIMIT 30;");
-  //   while($row = mysqli_fetch_assoc($verse_qry)) {
-  //    $volumes[] = $row;
-  //   }
-  //
-  //   // Return Response
   //   $payload["message"] = "Success";
   //   $payload["volumes"] = $volumes;
   //
@@ -32,11 +73,41 @@ class scriptureController {
   //   // Set the response
   //   $response = $response->withJson($payload);
   //   $response = $response->withStatus($status, $status_message);
-  //
   //   // Return Response
   //   return $response;
   // }
-
+  // public function searchScipturesBook($request, $response, args) {
+  //   $connectMe = "yes";
+  //   require('includes/functions.php');
+  //   $payload["message"] = "Success";
+  //   $payload["volumes"] = $volumes;
+  //
+  //   // status
+  //   $status = 200;
+  //   $status_message = "Success";
+  //
+  //   // Set the response
+  //   $response = $response->withJson($payload);
+  //   $response = $response->withStatus($status, $status_message);
+  //   // Return Response
+  //   return $response;
+  // }
+  // public function searchScipturesChapter($request, $response, args) {
+  //   $connectMe = "yes";
+  //   require('includes/functions.php');
+  //   $payload["message"] = "Success";
+  //   $payload["volumes"] = $volumes;
+  //
+  //   // status
+  //   $status = 200;
+  //   $status_message = "Success";
+  //
+  //   // Set the response
+  //   $response = $response->withJson($payload);
+  //   $response = $response->withStatus($status, $status_message);
+  //   // Return Response
+  //   return $response;
+  // }
   //
   // All Volumes
   //

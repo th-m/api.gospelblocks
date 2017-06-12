@@ -11,11 +11,52 @@
       /* bring your own prefixes */
       transform: translate(-50%, -50%);
     }
+    table, thead, tbody, tr{
+      width:100%;
+      display: block;
+    }
+    th, td {
+      width:49%;
+      display: inline-block;
+    }
     </style>
   </head>
   <body>
-    <div class="centered">
+    <div class="">
       <h1>You hit the gospelblocks api</h1>
+      <h3>This is a free to use rest API that provides access to all scriptures within the standard works</h3>
+    </div>
+    <br>
+    <br>
+      <p>Here is a quick break down of how to use the API.
+      <br>*note that all endpoints are preceded by http://api.gospelblocks.com/v1/</p>
+      <table>
+        <thead>
+          <tr>
+            <th>End Point</th>
+            <th>Returns</th>
+            <!-- <th>Notes</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>volumes</td>
+            <td>All volumes within standard works.</td>
+          </tr>
+          <tr>
+            <td>/volume/{volume}</td>
+            <td>All books within volume</td>
+          </tr>
+          <tr>
+            <td>/volume/{volume}/book/{book}</td>
+            <td>Returns all chapters within book</td>
+          </tr>
+          <tr>
+            <td>/volume/{volume}/book/{book}/chapter/{chapter}</td>
+            <td>All verses within chapter</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </body>
 </html>
