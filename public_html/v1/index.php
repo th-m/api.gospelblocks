@@ -36,6 +36,7 @@ $app->get('/volume/{volume}/book/{book}/chapter/{chapter}', '\scriptureControlle
 // Search Functions
 //
 $app->get('/search/{string}', '\scriptureController:searchSciptures');
+$app->get('/search/{string}/{page}', '\scriptureController:searchSciptures');
 // $app->get('search/volume/{volume}/{search_string}', '\scriptureController:searchScipturesVolume');
 // $app->get('search/volume/{volume}/book/{book}/{search_string}', '\scriptureController:searchScipturesBook');
 // $app->get('search/volume/{volume}/book/{book}/chapter/{chapter}/{search_string}', '\scriptureController:searchScipturesChapter');

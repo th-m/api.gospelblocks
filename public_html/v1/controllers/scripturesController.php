@@ -7,6 +7,15 @@ class scriptureController {
     $connectMe = "yes";
     require('includes/functions.php');
     $search_string = $args['string'];
+    $page = $args['page'];
+    if(isset($args['page'])){
+      $limit_start = ($args['page']-1) * 35;
+
+      $limit = "LIMIT $limit_start, 35";
+    }
+    if($page == null){
+      $page = "All";
+    }
     //
     if ((strpos($search_string, '||') !== false) || (strpos($search_string, '&&') !== false)) {
       $strings = $search_string;
@@ -30,24 +39,35 @@ class scriptureController {
  //      SELECT Id, ProductName, UnitPrice, Package
  //  FROM Product
  // WHERE ProductName LIKE 'Cha_' OR ProductName LIKE 'Chan_'
-      $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE $qry_string;");
+      $qry = "SELECT * FROM verses WHERE $qry_string;";
+      $qry = "SELECT Count(id) AS total_verses FROM verses WHERE $qry_string;";
+
+      $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE $qry_string $limit;");
+      $count_qry = mysqli_query($link, "SELECT Count(id) AS total_verses FROM verses WHERE $qry_string;");
       // $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE verse_scripture LIKE '%light%' AND verse_scripture LIKE '%God%';");
     }else{
-      $verse_qry = mysqli_query($link, "SELECT * FROM verses
-        WHERE verse_scripture LIKE '%$search_string%';");
+      // $qry = "SELECT * FROM verses WHERE verse_scripture LIKE '%$search_string%';";
+      $qry = "SELECT Count(id) AS total_verses FROM verses WHERE verse_scripture LIKE '%$search_string%';";
+      $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE verse_scripture LIKE '%$search_string%' $limit;");
+      $count_qry = mysqli_query($link, "SELECT id FROM verses WHERE verse_scripture LIKE '%$search_string%';");
+      $count = mysqli_num_rows($count_qry);
     }
 
 
     // $qry_string = implode("OR verse_scripture LIKE",$strings)
     // Users Query
     while($row = mysqli_fetch_assoc($verse_qry)) {
-     $volumes[] = $row;
+     $verses[] = $row;
     }
 
     // Return Response
     $payload["message"] = "Success";
+    $payload["qry"] = $qry;
     $payload["string"] = $search_string;
-    $payload["volumes"] = $volumes;
+    $payload['number_results'] = $count;
+    $payload["page"] = $page;
+    $payload['number_pages'] = ceil(settype($count, "float") / 35.00);
+    $payload["verses"] = $verses;
 
     // status
     $status = 200;
