@@ -43,7 +43,8 @@ class scriptureController {
       $qry = "SELECT Count(id) AS total_verses FROM verses WHERE $qry_string;";
 
       $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE $qry_string $limit;");
-      $count_qry = mysqli_query($link, "SELECT Count(id) AS total_verses FROM verses WHERE $qry_string;");
+      $count_qry = mysqli_query($link, "SELECT id FROM verses WHERE $qry_string;");
+      $count = mysqli_num_rows($count_qry);
       // $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE verse_scripture LIKE '%light%' AND verse_scripture LIKE '%God%';");
     }else{
       // $qry = "SELECT * FROM verses WHERE verse_scripture LIKE '%$search_string%';";
@@ -66,7 +67,9 @@ class scriptureController {
     $payload["string"] = $search_string;
     $payload['number_results'] = $count;
     $payload["page"] = $page;
-    $payload['number_pages'] = ceil(settype($count, "float") / 35.00);
+    $payload['pages_count'] = ceil($count / 35.00);
+    // $payload['pages_math'] = $count 0);
+    // $payload['number_pages'] = ceil(settype($count, "float") / 35.00);
     $payload["verses"] = $verses;
 
     // status
