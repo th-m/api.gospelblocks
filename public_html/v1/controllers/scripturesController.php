@@ -13,6 +13,19 @@ class scriptureController {
 
       $limit = "LIMIT $limit_start, 35";
     }
+    $qry_string = "";
+    if(isset($args['volumeId'])){
+      $volume_id = $args['volumeId'];
+      $qry_string .= "volume_id = $volume_id";
+    }
+    if(isset($args['bookId'])){
+      $book_id = $args['bookId'];
+      $qry_string .= " AND book_id = $book_id";
+    }
+    if(isset($args['chapterId'])){
+      $chapter = $args['chapterId'];
+      $qry_string .= " AND chapter = $chapter";
+    }
     if($page == null){
       $page = "All";
     }
@@ -22,8 +35,9 @@ class scriptureController {
       $strings = preg_replace( '/\|\|/', '|OR|', $strings);
       $strings = preg_replace( '/&&/', '|AND|', $strings);
       $strings = preg_split( '/\|/', $strings);
-
-      $qry_string = "";
+      if($qry_string != ""){
+        $qry_string .= ' AND';
+      }
       foreach ($strings as $string) {
         if($string == "OR" || $string == "AND"){
           $qry_string .= $string;
@@ -39,8 +53,8 @@ class scriptureController {
  //      SELECT Id, ProductName, UnitPrice, Package
  //  FROM Product
  // WHERE ProductName LIKE 'Cha_' OR ProductName LIKE 'Chan_'
-      $qry = "SELECT * FROM verses WHERE $qry_string;";
-      $qry = "SELECT Count(id) AS total_verses FROM verses WHERE $qry_string;";
+      $qry = "SELECT * FROM verses WHERE $qry_string $limit; ";
+      // $qry = "SELECT Count(id) AS total_verses FROM verses WHERE $qry_string;";
 
       $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE $qry_string $limit;");
       $count_qry = mysqli_query($link, "SELECT id FROM verses WHERE $qry_string;");
@@ -48,9 +62,12 @@ class scriptureController {
       // $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE verse_scripture LIKE '%light%' AND verse_scripture LIKE '%God%';");
     }else{
       // $qry = "SELECT * FROM verses WHERE verse_scripture LIKE '%$search_string%';";
-      $qry = "SELECT Count(id) AS total_verses FROM verses WHERE verse_scripture LIKE '%$search_string%';";
-      $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE verse_scripture LIKE '%$search_string%' $limit;");
-      $count_qry = mysqli_query($link, "SELECT id FROM verses WHERE verse_scripture LIKE '%$search_string%';");
+      if($qry_string != ""){
+        $qry_string .= " AND";
+      }
+      $qry = "SELECT * FROM verses WHERE $qry_string verse_scripture LIKE '%$search_string%' $limit;";
+      $verse_qry = mysqli_query($link, "SELECT * FROM verses WHERE $qry_string verse_scripture LIKE '%$search_string%' $limit;");
+      $count_qry = mysqli_query($link, "SELECT id FROM verses WHERE $qry_string verse_scripture LIKE '%$search_string%';");
       $count = mysqli_num_rows($count_qry);
     }
 
@@ -68,8 +85,6 @@ class scriptureController {
     $payload['number_results'] = $count;
     $payload["page"] = $page;
     $payload['pages_count'] = ceil($count / 35.00);
-    // $payload['pages_math'] = $count 0);
-    // $payload['number_pages'] = ceil(settype($count, "float") / 35.00);
     $payload["verses"] = $verses;
 
     // status
